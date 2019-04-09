@@ -1,12 +1,12 @@
 /*
- * Author: SMRAZA KEEN
- * Date:2016/6/29
+ * Author: Milien McDermott
+ * Date:4/09/2019
  * IDE V1.6.9
- * Email:TechnicSmraza@outlook.com
- * Function:
+ * Email:mcdermottm3446@my.uwstout.edu
+ * Function:Runs Motorized Interactive Cat Excersizer
  */
-const int TRIGPINS[3] = {2,4,6};
-const int ECHOPINS[3] = {3,5,7};
+const int TRIGPIN[3] = {2,4,6};
+const int ECHOPIN[3] = {3,5,7};
 const int MOVEPADDING = 10;
 float cm;
 bool exitProcess;
@@ -20,8 +20,8 @@ void setup(){
   //setup untrasonic sensors
   say("setup ultrasonic sensors");
   for(int i=0;i<3;i++){
-    pinMode(TrigPin[i], OUTPUT);
-    pinMode(EchoPin[i], INPUT);  
+    pinMode(TRIGPIN[i], OUTPUT);
+    pinMode(ECHOPIN[i], INPUT);  
   }
   
   //initial delay
@@ -44,12 +44,12 @@ void sentry(){
   int checkSafe[6];
   //first three
   for(int i=0;i<3;i++){
-    initial[i]=getdistance(TrigPin[i],EchoPin[i]);
+    initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
   }
   //TODO move motors
   //second three (after turn)
   for(int i=3;i<6;i++){
-    initial[i]=getdistance(TrigPin[i],EchoPin[i]);
+    initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
   }
   for(int i=0;i<6;i++){
     checkSafe[6]=initial[6];
@@ -58,10 +58,10 @@ void sentry(){
   bool safe = true;
   while(safe){
     for(int i=0;i<3;i++){
-      checkSafe[i]=getdistance(TrigPin[i],EchoPin[i]);
+      checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
     }
     for(int i=0;i<3;i++){
-      if checkSafe[i]>(initial[i]+movePadding)||checksafe[i]<(initial[i]-movePadding){
+      if checkSafe[i]>(initial[i]+MOVEPADDING)||checksafe[i]<(initial[i]-MOVEPADDING){
         safe=false;
         break;
       }
@@ -69,10 +69,10 @@ void sentry(){
     //TODO move motors
     //second three (after turn)
     for(int i=3;i<6;i++){
-      checkSafe[i]=getdistance(TrigPin[i],EchoPin[i]);
+      checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
     }
     for(int i=3;i<6;i++){
-      if checkSafe[i]>(initial[i]+movePadding)||checksafe[i]<(initial[i]-movePadding){
+      if checkSafe[i]>(initial[i]+MOVEPADDING)||checksafe[i]<(initial[i]-MOVEPADDING){
         safe=false;
         break;
       }
@@ -87,6 +87,15 @@ bool flee(){
   //TODO Run motors to avoid capture
 }
 
+void runaway(right,left){
+  //TODO some way to check time/distance on motors to regulate function
+  //TODO code to interface with RFID chip
+  bool RFIDhit = false;
+  bool motorFinished = false;
+  while(!RFIDhit&&!motorFinished){
+    
+  }
+}
 
 void movemotors(right,left){
   //pass these into the motor

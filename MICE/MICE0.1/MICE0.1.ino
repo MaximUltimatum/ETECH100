@@ -47,14 +47,6 @@ void setup(){
 }
 
 
-void loop(){
-  say("Entering sentry mode");
-  sentry();
-  say("Exited sentry mode");
-  flee();
-}
-
-
 void sentry(){
   //get initial distances
   int initial[6];
@@ -78,7 +70,7 @@ void sentry(){
       checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
     }
     for(int i=0;i<3;i++){
-      if checkSafe[i]>(initial[i]+MOVEPADDING)||checksafe[i]<(initial[i]-MOVEPADDING){
+      if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
         safe=false;
         break;
       }
@@ -89,7 +81,7 @@ void sentry(){
       checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
     }
     for(int i=3;i<6;i++){
-      if checkSafe[i]>(initial[i]+MOVEPADDING)||checksafe[i]<(initial[i]-MOVEPADDING){
+      if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
         safe=false;
         break;
       }
@@ -97,31 +89,33 @@ void sentry(){
   }
 }
 
+
+
 bool flee(){
   bool caught = false;
-  //TODO somehow run two functions
   //TODO Timer
-  //TODO Run motors to avoid capture
-  runaway()
+  caught = runaway();
 }
 
-void runaway(right,left){
-  //TODO some way to check time/distance on motors to regulate function
+bool runaway(){
   //TODO code to interface with RFID chip
   bool RFIDhit = false;
-  bool motorFinished = false;
+  int timeout = 0;
   
   //drives in a square and checks for the cat
-  while(!RFIDhit&&!motorFinished){
+  while(!RFIDhit && (timeout<20000)){
     setmotors(FORWARD,FORWARD,FAST);
     RFIDhit = checkForCat(5000);
+    timeout = timeout + 5000;
     if(RFIDhit)
-      break;
-    setmotors(BACKWARD,FORWARD,SLOW);
+      return true;
+    setmotors(REVERSE,FORWARD,SLOW);
     RFIDhit = checkForCat(1000);
+    timeout = timeout + 1000;
     if(RFIDhit)
-      break;
+      return true;
   }
+  return false;
 }
 
 bool checkForCat(int waitTime){
@@ -161,7 +155,7 @@ void stopmotors(){
   }
 }
 
-int getdistance(Trigger,Echo){
+int getdistance(int Trigger, int Echo){
   digitalWrite(Trigger, LOW);       
   delayMicroseconds(2);
   digitalWrite(Trigger, HIGH);
@@ -173,6 +167,13 @@ int getdistance(Trigger,Echo){
 }
 
 
-void say(string said){
+void say(String said){
   Serial.println(said);
+}
+
+void loop(){
+  say("Entering sentry mode");
+  sentry();
+  say("Exited sentry mode");
+  flee();
 }

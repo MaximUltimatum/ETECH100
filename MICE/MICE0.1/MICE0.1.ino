@@ -7,6 +7,13 @@
  */
 const int TRIGPIN[3] = {2,4,6};
 const int ECHOPIN[3] = {3,5,7};
+
+
+//first 3: motor 1, second 3: motor 2
+const int MOTORPIN[6] = {6,5,8,7,1,4};
+// enA,enB   in1,in2,   ,in3,in4
+
+
 const int MOVEPADDING = 10;
 float cm;
 bool exitProcess;
@@ -23,6 +30,12 @@ void setup(){
     pinMode(TRIGPIN[i], OUTPUT);
     pinMode(ECHOPIN[i], INPUT);  
   }
+
+  //set up all the motor control pins
+  for(int i=0;i<6;i++){
+    pinMode(MOTORPIN[i],OUTPUT);
+  }
+
   
   //initial delay
   say("Initial setup delay");
@@ -85,6 +98,7 @@ bool flee(){
   //TODO somehow run two functions
   //TODO Timer
   //TODO Run motors to avoid capture
+  runaway()
 }
 
 void runaway(right,left){
@@ -93,13 +107,21 @@ void runaway(right,left){
   bool RFIDhit = false;
   bool motorFinished = false;
   while(!RFIDhit&&!motorFinished){
-    
+    movemotors(right,left);
+    //TODO check RFID somehow
+    //TODO check motor somehow
   }
 }
 
 void movemotors(right,left){
   //pass these into the motor
   say("I do absolutely nothing");
+}
+
+void stopmotors(){
+  for(int i=2;i<6;i++){
+    digitalWrite(MOTORPIN[i],LOW);
+  }
 }
 
 int getdistance(Trigger,Echo){

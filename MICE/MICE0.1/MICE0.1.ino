@@ -12,6 +12,10 @@ const int ECHOPIN[3] = {3,5,7};
 //first 3: motor 1, second 3: motor 2
 const int MOTORPIN[6] = {6,5,8,7,1,4};
 // enA,enB   in1,in2,   ,in3,in4
+const bool FORWARD = true;
+const bool REVERSE = false;
+const int FAST = 200;
+const int SLOW = 50;
 
 
 const int MOVEPADDING = 10;
@@ -106,16 +110,49 @@ void runaway(right,left){
   //TODO code to interface with RFID chip
   bool RFIDhit = false;
   bool motorFinished = false;
+  
+  //drives in a square and checks for the cat
   while(!RFIDhit&&!motorFinished){
-    movemotors(right,left);
-    //TODO check RFID somehow
-    //TODO check motor somehow
+    setmotors(FORWARD,FORWARD,FAST);
+    RFIDhit = checkForCat(5000);
+    if(RFIDhit)
+      break;
+    setmotors(BACKWARD,FORWARD,SLOW);
+    RFIDhit = checkForCat(1000);
+    if(RFIDhit)
+      break;
   }
 }
 
-void movemotors(right,left){
+bool checkForCat(int waitTime){
+  for(int i = 0; i < waitTime; i = i+300){
+    delay(300);
+    //TODO check for RFID cat hit somehow
+  }
+}
+
+void setmotors(bool left, bool right,int spd){ //spd is 0-255)
   //pass these into the motor
-  say("I do absolutely nothing");
+  if(right){
+    digitalWrite(MOTORPIN[2],HIGH);
+    digitalWrite(MOTORPIN[3],LOW);
+  }
+  else{
+    digitalWrite(MOTORPIN[2],LOW);
+    digitalWrite(MOTORPIN[3],HIGH);
+  }
+
+  if(left){
+    digitalWrite(MOTORPIN[4],HIGH);
+    digitalWrite(MOTORPIN[5],LOW);
+  }
+  else{
+    digitalWrite(MOTORPIN[4],LOW);
+    digitalWrite(MOTORPIN[5],HIGH);
+  }
+
+  analogWrite(MOTORPIN[0],spd);
+  analogWrite(MOTORPIN[1],spd);
 }
 
 void stopmotors(){

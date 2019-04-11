@@ -172,6 +172,9 @@ int getdistance(int Trigger, int Echo){
   return cm;
 }
 
+bool wastouched(){
+  //TODO put in RFID code HERE
+}
 
 void say(String said){
   Serial.println(said);

@@ -8,8 +8,6 @@
 const int TRIGPIN[3] = {2,4,6};
 const int ECHOPIN[3] = {3,5,7};
 
-
-//first 3: motor 1, second 3: motor 2
 const int MOTORPIN[6] = {6,5,8,7,1,4};
 // enA,enB   in1,in2,   ,in3,in4
 const bool FORWARD = true;
@@ -95,6 +93,8 @@ bool flee(){
   bool caught = false;
   //TODO Timer
   caught = runaway();
+  stopmotors();
+  return caught;
 }
 
 bool runaway(){
@@ -118,13 +118,18 @@ bool runaway(){
   return false;
 }
 
+//use this function to idle while motor runs
 bool checkForCat(int waitTime){
   for(int i = 0; i < waitTime; i = i+300){
     delay(300);
-    //TODO check for RFID cat hit somehow
+    if(true){ 
+      //TODO check for RFID cat hit somehow
+    }
   }
+  return false;
 }
 
+//this function sets motor values
 void setmotors(bool left, bool right,int spd){ //spd is 0-255)
   //pass these into the motor
   if(right){
@@ -155,6 +160,7 @@ void stopmotors(){
   }
 }
 
+//returns distance from ultrsonic sensors
 int getdistance(int Trigger, int Echo){
   digitalWrite(Trigger, LOW);       
   delayMicroseconds(2);
@@ -175,5 +181,11 @@ void loop(){
   say("Entering sentry mode");
   sentry();
   say("Exited sentry mode");
-  flee();
+  if(flee()){ //returns true if the cat catches it
+    delay(EATDELAY);
+  }
+  else{
+    delay(RETRIEVALDELAY);
+  }
+  say("Finished loop") 
 }

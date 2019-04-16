@@ -48,6 +48,7 @@ bool exitProcess;
 const int EATDELAY = 5000;
 const int RETRIEVALDELAY = 10000;
 
+
 //SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP 
 void setup(){
   //setup serial monitor for debugging at 9600 baud rate
@@ -77,6 +78,7 @@ void setup(){
   delay(5000);
 }
 
+
 //THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE 
 void sentry(){
   //get initial distances
@@ -84,14 +86,14 @@ void sentry(){
   int checkSafe[6];
   //first three
   for(int i=0;i<3;i++){
-    say(getdistance());//debug getdistance?
-    initial[i]=getdistance();
+    say(getdistance());
+    initial[i]=Measurements[i]
   }
   movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
-    say(getdistance()); //debug getdistance?
-    initial[i]=getdistance(); //TODO discern which sensor?
+    say(getdistance());
+    initial[i]=Measurements[i+3]
   }
   for(int i=0;i<6;i++){
     checkSafe[6]=initial[6];
@@ -210,7 +212,7 @@ void stopmotors(){
 
 //SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS 
 //returns distance from ultrsonic sensors
-int getdistance(){
+void getdistance(){
   PingIt(); // Manage ping data
 
   if ( ((unsigned long)(millis() - TimeoutTimer) >= 1000)) {
@@ -218,7 +220,7 @@ int getdistance(){
     Counter = 0;
     TimeoutTimer = millis();
   }
-  return Measurements;
+  say("Measurements are: " + Measurements);
 }
 
 //checks if RFID tripped

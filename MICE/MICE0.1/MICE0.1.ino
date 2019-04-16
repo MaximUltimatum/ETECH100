@@ -86,41 +86,41 @@ void sentry(){
   int checkSafe[6];
   //first three
   for(int i=0;i<3;i++){
-    say(getdistance());
-    initial[i]=Measurements[i]
+    getdistance();
+    initial[i]=Measurements[i];
   }
   movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
-    say(getdistance());
-    initial[i]=Measurements[i+3]
+    getdistance();
+    initial[i]=Measurements[i];
   }
   for(int i=0;i<6;i++){
-    checkSafe[6]=initial[6];
+    checkSafe[i]=initial[i];
   }
   //sentry loop
   bool safe = true;
   while(safe){
     for(int i=0;i<3;i++){
-      say(getdistance()); //debug getdistance?
-      checkSafe[i]=getdistance();
+      getdistance(); //debug getdistance?
+      checkSafe[i]=Measurements[i];
     }
     for(int i=0;i<3;i++){
       if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
         safe=false;
-        break;
+        return;
       }
     }
     movemotors(REVERSE,FORWARD,SLOW,200);
     //second three (after turn)
     for(int i=3;i<6;i++){
-      say(getdistance()); //debug getdistance?
-      checkSafe[i]=getdistance();
+      getdistance(); //debug getdistance?
+      checkSafe[i]=Measurements[i];
     }
     for(int i=3;i<6;i++){
       if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
         safe=false;
-        break;
+        return;
       }
     }
   }
@@ -220,7 +220,12 @@ void getdistance(){
     Counter = 0;
     TimeoutTimer = millis();
   }
-  say("Measurements are: " + Measurements);
+  char S[20];
+  for (int c = 0; c < EchoInputCount; c++) {
+    Serial.print(dtostrf(Measurements[c], 6, 1, S));
+    Serial.print("\n");
+  }
+  //say("Measurements are: " + dtostrf(Measurements));
 }
 
 //checks if RFID tripped

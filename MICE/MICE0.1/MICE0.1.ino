@@ -14,7 +14,7 @@ uchar fifobytes;
 uchar fifoValue;
 const int chipSelectPin = 10;
 const int NRSTPD = 9;
-#define MAX_LEN = 16
+#define MAX_LEN 16
 AddicoreRFID catRFID;
 
 //Echo stuff
@@ -84,12 +84,14 @@ void sentry(){
   int checkSafe[6];
   //first three
   for(int i=0;i<3;i++){
+    say(getdistance());//debug getdistance?
     initial[i]=getdistance();
   }
   movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
-    initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
+    say(getdistance()); //debug getdistance?
+    initial[i]=getdistance(); //TODO discern which sensor?
   }
   for(int i=0;i<6;i++){
     checkSafe[6]=initial[6];
@@ -98,7 +100,8 @@ void sentry(){
   bool safe = true;
   while(safe){
     for(int i=0;i<3;i++){
-      checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
+      say(getdistance()); //debug getdistance?
+      checkSafe[i]=getdistance();
     }
     for(int i=0;i<3;i++){
       if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
@@ -109,7 +112,8 @@ void sentry(){
     movemotors(REVERSE,FORWARD,SLOW,200);
     //second three (after turn)
     for(int i=3;i<6;i++){
-      checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
+      say(getdistance()); //debug getdistance?
+      checkSafe[i]=getdistance();
     }
     for(int i=3;i<6;i++){
       if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
@@ -325,5 +329,5 @@ void loop(){
   else{
     delay(RETRIEVALDELAY);
   }
-  say("Finished loop") 
+  say("Finished loop"); 
 }

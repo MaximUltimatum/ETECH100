@@ -6,14 +6,16 @@
  * Function:Runs Motorized Interactive Cat Excersizer
  */
 //include RFID stuff
-#include <AddicoreRFID.h>
+#include "AddicoreRFID.h"
 #include <SPI.h>
-AddicoreRFID catRFID;
+#define uchar unsigned char
+#define uint unsigned int
 uchar fifobytes;
 uchar fifoValue;
-const int chipSelectPin = 10
+const int chipSelectPin = 10;
 const int NRSTPD = 9;
 #define MAX_LEN = 16
+AddicoreRFID catRFID;
 
 //Echo stuff
 const int trig = 3;
@@ -29,7 +31,7 @@ volatile  uint8_t PCintLast;
 int PinMask = B1000; // pin 3
 float Measurements[EchoInputCount];
 unsigned long TimeoutTimer;
-int 
+//TODO unused int?
 
 //Motor stuff
 const int MOTORPIN[6] = {6,5,8,7,1,4};
@@ -46,7 +48,7 @@ bool exitProcess;
 const int EATDELAY = 5000;
 const int RETRIEVALDELAY = 10000;
 
-//SETUP CODE
+//SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP 
 void setup(){
   //setup serial monitor for debugging at 9600 baud rate
   Serial.begin(9600);
@@ -75,7 +77,7 @@ void setup(){
   delay(5000);
 }
 
-//Thinking Operation code
+//THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE 
 void sentry(){
   //get initial distances
   int initial[6];
@@ -84,7 +86,7 @@ void sentry(){
   for(int i=0;i<3;i++){
     initial[i]=getdistance();
   }
-  //TODO move motors
+  movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
     initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
@@ -104,7 +106,7 @@ void sentry(){
         break;
       }
     }
-    //TODO move motors
+    movemotors(REVERSE,FORWARD,SLOW,200);
     //second three (after turn)
     for(int i=3;i<6;i++){
       checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
@@ -118,21 +120,8 @@ void sentry(){
   }
 }
 
-//returns distance from ultrsonic sensors
-int getdistance(){
-  PingIt(); // Manage ping data
-
-  if ( ((unsigned long)(millis() - TimeoutTimer) >= 1000)) {
-    PingTrigger(TriggerPin); // Send another ping
-    Counter = 0;
-    TimeoutTimer = millis();
-  }
-  return Measurements;
-}
-
 bool flee(){
   bool caught = false;
-  //TODO Timer
   caught = runaway();
   stopmotors();
   return caught;
@@ -142,24 +131,36 @@ bool runaway(){
   //TODO code to interface with RFID chip
   bool RFIDhit = false;
   int timeout = 0;
-  
+  int straitTime = 5000;
+  int turnTime = 1000;
   //drives in a square and checks for the cat
   while(!RFIDhit && (timeout<20000)){
     setmotors(FORWARD,FORWARD,FAST);
-    RFIDhit = checkForCat(5000);
-    timeout = timeout + 5000;
+    RFIDhit = checkForCat(straitTime);
+    timeout = timeout + straitTime;
     if(RFIDhit)
       return true;
     setmotors(REVERSE,FORWARD,SLOW);
-    RFIDhit = checkForCat(1000);
-    timeout = timeout + 1000;
+    RFIDhit = checkForCat(turnTime);
+    timeout = timeout + turnTime;
     if(RFIDhit)
       return true;
   }
   return false;
 }
 
-//use this function to idle while motor runs
+
+
+//MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS 
+//Call this function if you're just moving and not checking for a cat
+void movemotors(bool left, bool right, int spd, int waitTime){
+  setmotors(left, right, spd);
+  for (int i = 0; i < waitTime; i = i + 200){
+    delay(200);
+  }
+}
+
+//use this function to idle while motor runs and you wait for a cat
 bool checkForCat(int waitTime){
   for(int i = 0; i < waitTime; i = i+300){
     delay(300);
@@ -201,6 +202,22 @@ void stopmotors(){
   }
 }
 
+
+
+//SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS 
+//returns distance from ultrsonic sensors
+int getdistance(){
+  PingIt(); // Manage ping data
+
+  if ( ((unsigned long)(millis() - TimeoutTimer) >= 1000)) {
+    PingTrigger(TriggerPin); // Send another ping
+    Counter = 0;
+    TimeoutTimer = millis();
+  }
+  return Measurements;
+}
+
+//checks if RFID tripped
 bool wastouched(){
   uchar status;
   uchar str[MAX_LEN];
@@ -228,8 +245,8 @@ void PintTimer( )
   pin = PIND >> 3 & 1;      // Quickly get the state of  pin 3
   if (pin)edgeTime = cTime; //Pulse went HIGH store the start time
   else { // Pulse Went low calculate the duratoin
-    PingTime[Counter % EchoInputCount] = cTime - edgeTime; // Calculate the change in time  NOTE: the "% EchoInputCount" prevents the count from overflowing the array look up % remainder calculation
-    Counter++;
+    PingTime[Counter % EchoInputCount] = cTime - edgeTime; // Calculate the change in time  
+    Counter++;//NOTE: the "% EchoInputCount" prevents the count from overflowing the array look up % remainder calculation
   }
 }
 void debug()
@@ -291,6 +308,8 @@ void PingIt()
   }
 }
 
+
+//SAY FUNCTION
 //printout shortcut
 void say(String said){
   Serial.println(said);

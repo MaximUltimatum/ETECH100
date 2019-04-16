@@ -82,6 +82,7 @@ void setup(){
 //THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE 
 void sentry(){
   //get initial distances
+  say("Get initial distances");
   int initial[6];
   int checkSafe[6];
   //first three
@@ -89,6 +90,7 @@ void sentry(){
     getdistance();
     initial[i]=Measurements[i];
   }
+  say("Done with first three");
   movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
@@ -99,8 +101,10 @@ void sentry(){
     checkSafe[i]=initial[i];
   }
   //sentry loop
+  say("Entering sentry loop");
   bool safe = true;
   while(safe){
+    say("In sentry loop");
     for(int i=0;i<3;i++){
       getdistance(); //debug getdistance?
       checkSafe[i]=Measurements[i];
@@ -164,6 +168,7 @@ void movemotors(bool left, bool right, int spd, int waitTime){
   for (int i = 0; i < waitTime; i = i + 200){
     delay(200);
   }
+  stopmotors();
 }
 
 //use this function to idle while motor runs and you wait for a cat
@@ -180,7 +185,7 @@ bool checkForCat(int waitTime){
 //this function sets motor values
 void setmotors(bool left, bool right,int spd){ //spd is 0-255)
   //pass these into the motor
-  if(right){
+  if(left){
     digitalWrite(MOTORPIN[2],HIGH);
     digitalWrite(MOTORPIN[3],LOW);
   }
@@ -189,7 +194,7 @@ void setmotors(bool left, bool right,int spd){ //spd is 0-255)
     digitalWrite(MOTORPIN[3],HIGH);
   }
 
-  if(left){
+  if(right){
     digitalWrite(MOTORPIN[4],HIGH);
     digitalWrite(MOTORPIN[5],LOW);
   }

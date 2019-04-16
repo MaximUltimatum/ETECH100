@@ -5,7 +5,7 @@
  * Email:mcdermottm3446@my.uwstout.edu
  * Function:Runs Motorized Interactive Cat Excersizer
  */
-//include RFID stuff
+//include RFID necessities
 #include "AddicoreRFID.h"
 #include <SPI.h>
 #define uchar unsigned char

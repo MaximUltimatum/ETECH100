@@ -39,7 +39,7 @@ const int MOTORPIN[6] = {6,5,8,7,1,4};
 const bool FORWARD = true;
 const bool REVERSE = false;
 const int FAST = 200;
-const int SLOW = 50;
+const int SLOW = 100;
 
 //Various variables
 const int MOVEPADDING = 10;
@@ -51,19 +51,23 @@ const int RETRIEVALDELAY = 10000;
 
 //SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP 
 void setup(){
+  /*
   //setup serial monitor for debugging at 9600 baud rate
   Serial.begin(9600);
+  */
   //setup ultrasonic sensors
   say("setup ultrasonic sensors");
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT); 
-
+  
+  stopmotors();
   //set up all the motor control pins
   say("Set up motor control pins");
   for(int i=0;i<6;i++){
     pinMode(MOTORPIN[i],OUTPUT);
   }
-
+  stopmotors();
+  
   //Start RFID stuff
   say("Setup RFID");
   SPI.begin();
@@ -75,7 +79,7 @@ void setup(){
   
   //initial delay
   say("Initial setup delay");
-  delay(5000);
+  delay(1000);
 }
 
 
@@ -186,19 +190,23 @@ bool checkForCat(int waitTime){
 void setmotors(bool left, bool right,int spd){ //spd is 0-255)
   //pass these into the motor
   if(left){
+    say("Left called forward");
     digitalWrite(MOTORPIN[2],HIGH);
     digitalWrite(MOTORPIN[3],LOW);
   }
   else{
+    say("Left called back");
     digitalWrite(MOTORPIN[2],LOW);
     digitalWrite(MOTORPIN[3],HIGH);
   }
 
   if(right){
+    say("Right called forward");
     digitalWrite(MOTORPIN[4],HIGH);
     digitalWrite(MOTORPIN[5],LOW);
   }
   else{
+    say("Right called Back");
     digitalWrite(MOTORPIN[4],LOW);
     digitalWrite(MOTORPIN[5],HIGH);
   }
@@ -208,9 +216,12 @@ void setmotors(bool left, bool right,int spd){ //spd is 0-255)
 }
 
 void stopmotors(){
+  say("Stopping motors");
   for(int i=2;i<6;i++){
     digitalWrite(MOTORPIN[i],LOW);
   }
+  analogWrite(MOTORPIN[0],0);
+  analogWrite(MOTORPIN[1],0);
 }
 
 

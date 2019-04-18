@@ -343,16 +343,6 @@ void say(String said){
 }
 
 void loop(){
-  delay(1000);
-  say("both forward");
-  movemotors(FORWARD,REVERSE,SLOW,6000);
-  say("both backward");
-  movemotors(REVERSE,FORWARD,SLOW,6000);
-  say("Rotate");
-  movemotors(FORWARD,FORWARD,SLOW,4000);
-  say("Rotate other");
-  movemotors(REVERSE,REVERSE,SLOW,4000);
-  /*
   say("Entering sentry mode");
   sentry();
   say("Exited sentry mode");
@@ -363,5 +353,4 @@ void loop(){
     delay(RETRIEVALDELAY);
   }
   say("Finished loop"); 
-  */
 }

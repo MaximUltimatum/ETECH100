@@ -1,4 +1,4 @@
-/*
+ /*
  * Author: Milien McDermott
  * Date:4/09/2019
  * IDE V1.6.9
@@ -20,7 +20,7 @@ AddicoreRFID catRFID;
 //Echo stuff
 const int trig = 3;
 const int echo = 2;
-#define EchoInputCount 2
+#define EchoInputCount 4
 #define TriggerPin  2
 // echo pin will be interrupt 1 on pin 3
 #define DelayBetweenPings 50 // it works to about 5 milliseconds between pings
@@ -31,7 +31,7 @@ volatile  uint8_t PCintLast;
 int PinMask = B1000; // pin 3
 float Measurements[EchoInputCount];
 unsigned long TimeoutTimer;
-//TODO unused int?
+
 
 //Motor stuff
 const int MOTORPIN[6] = {6,5,8,7,1,4};
@@ -229,19 +229,15 @@ void stopmotors(){
 //SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS 
 //returns distance from ultrsonic sensors
 void getdistance(){
+  say("Called getdistance()");
   PingIt(); // Manage ping data
-
+  //PingIt calls debug() which should print out data to serial monitor
+  
   if ( ((unsigned long)(millis() - TimeoutTimer) >= 1000)) {
     PingTrigger(TriggerPin); // Send another ping
     Counter = 0;
     TimeoutTimer = millis();
   }
-  char S[20];
-  for (int c = 0; c < EchoInputCount; c++) {
-    Serial.print(dtostrf(Measurements[c], 6, 1, S));
-    Serial.print("\n");
-  }
-  //say("Measurements are: " + dtostrf(Measurements));
 }
 
 //checks if RFID tripped

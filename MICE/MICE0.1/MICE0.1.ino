@@ -1,3 +1,5 @@
+#include <Keyboard.h>
+
  /*
  * Author: Milien McDermott
  * Date:4/09/2019
@@ -18,9 +20,9 @@ const int NRSTPD = 9;
 AddicoreRFID catRFID;
 
 //Echo stuff
-const int trig = 3;
-const int echo = 2;
-#define EchoInputCount 4
+const int trig = 2;
+const int echo = 3;
+#define EchoInputCount 2
 #define TriggerPin  2
 // echo pin will be interrupt 1 on pin 3
 #define DelayBetweenPings 50 // it works to about 5 milliseconds between pings

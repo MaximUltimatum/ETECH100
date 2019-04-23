@@ -49,19 +49,19 @@ const int EATDELAY = 5000;
 const int RETRIEVALDELAY = 10000;
 
 
-//SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP 
+//SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP
 void setup(){
-  
+
   //setup serial monitor for debugging at 9600 baud rate
   Serial.begin(9600);
-  
+
   //setup ultrasonic sensors
   say("setup ultrasonic sensors");
   pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT); 
-  
+  pinMode(echo, INPUT);
+
   //prep_motors();
-  
+
   //Start RFID stuff
   say("Setup RFID");
   SPI.begin();
@@ -70,7 +70,7 @@ void setup(){
   pinMode(NRSTPD,OUTPUT);                     // Set digital pin 10 , Not Reset and Power-down
   digitalWrite(NRSTPD, HIGH);
   catRFID.AddicoreRFID_Init();
-  
+
   //initial delay
   say("Initial setup delay");
   delay(1000);
@@ -86,7 +86,7 @@ void prep_motors(){
   stopmotors();
 }
 
-//THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE 
+//THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE
 void sentry(){
   //get initial distances
   say("Get initial distances");
@@ -168,7 +168,7 @@ bool runaway(){
 
 
 
-//MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS 
+//MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS
 //Call this function if you're just moving and not checking for a cat
 void movemotors(bool left, bool right, int spd, int waitTime){
   setmotors(left, right, spd);
@@ -182,7 +182,7 @@ void movemotors(bool left, bool right, int spd, int waitTime){
 bool checkForCat(int waitTime){
   for(int i = 0; i < waitTime; i = i+300){
     delay(300);
-    if(wastouched()){ 
+    if(wastouched()){
       return true;
     }
   }
@@ -229,13 +229,13 @@ void stopmotors(){
 
 
 
-//SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS 
+//SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS
 //returns distance from ultrsonic sensors
 void getdistance(){
   say("Called getdistance()");
   PingIt(); // Manage ping data
   //PingIt calls debug() which should print out data to serial monitor
-  
+
   if ( ((unsigned long)(millis() - TimeoutTimer) >= 1000)) {
     PingTrigger(TriggerPin); // Send another ping
     Counter = 0;
@@ -271,7 +271,7 @@ void PintTimer( )
   pin = PIND >> 3 & 1;      // Quickly get the state of  pin 3
   if (pin)edgeTime = cTime; //Pulse went HIGH store the start time
   else { // Pulse Went low calculate the duratoin
-    PingTime[Counter % EchoInputCount] = cTime - edgeTime; // Calculate the change in time  
+    PingTime[Counter % EchoInputCount] = cTime - edgeTime; // Calculate the change in time
     Counter++;//NOTE: the "% EchoInputCount" prevents the count from overflowing the array look up % remainder calculation
   }
 }
@@ -356,5 +356,5 @@ void loop(){
   else{
     delay(RETRIEVALDELAY);
   }
-  say("Finished loop"); 
+  say("Finished loop");
 }

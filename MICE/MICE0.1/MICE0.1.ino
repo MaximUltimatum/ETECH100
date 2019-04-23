@@ -18,8 +18,8 @@ const int NRSTPD = 9;
 AddicoreRFID catRFID;
 
 //Echo stuff
-const int trig = 3;
-const int echo = 2;
+const int trig = 2;
+const int echo = 3;
 #define EchoInputCount 4
 #define TriggerPin  2
 // echo pin will be interrupt 1 on pin 3
@@ -51,22 +51,16 @@ const int RETRIEVALDELAY = 10000;
 
 //SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP 
 void setup(){
-  /*
+  
   //setup serial monitor for debugging at 9600 baud rate
   Serial.begin(9600);
-  */
+  
   //setup ultrasonic sensors
   say("setup ultrasonic sensors");
   pinMode(trig, OUTPUT);
   pinMode(echo, INPUT); 
   
-  stopmotors();
-  //set up all the motor control pins
-  say("Set up motor control pins");
-  for(int i=0;i<6;i++){
-    pinMode(MOTORPIN[i],OUTPUT);
-  }
-  stopmotors();
+  //prep_motors();
   
   //Start RFID stuff
   say("Setup RFID");
@@ -82,6 +76,15 @@ void setup(){
   delay(1000);
 }
 
+void prep_motors(){
+  stopmotors();
+  //set up all the motor control pins
+  say("Set up motor control pins");
+  for(int i=0;i<6;i++){
+    pinMode(MOTORPIN[i],OUTPUT);
+  }
+  stopmotors();
+}
 
 //THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE 
 void sentry(){
@@ -309,6 +312,11 @@ void PingIt()
 {
   unsigned long PT[EchoInputCount];
   static unsigned long PingTimer;
+  Serial.print("Counter: ");
+  Serial.print(Counter);
+  Serial.print("  EchoInputCount:");
+  Serial.print(EchoInputCount);
+  Serial.print("\n");
   if (Counter >= EchoInputCount) {
     if ( ((unsigned long)(millis() - PingTimer) >= DelayBetweenPings)) {
       PingTimer = millis();

@@ -40,26 +40,26 @@ const int EATDELAY = 5000;
 const int RETRIEVALDELAY = 10000;
 
 
-//SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP 
+//SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP
 void setup(){
-  
+
   //setup serial monitor for debugging at 9600 baud rate
   Serial.begin(9600);
-  
+
   //setup ultrasonic sensors
   say("setup ultrasonic sensors");
   for(int i=0;i<3;i++){
     pinMode(TRIGPIN[i], OUTPUT);
-    pinMode(ECHOPIN[i], INPUT);  
+    pinMode(ECHOPIN[i], INPUT);
   }
-  
+
   //set up all the motor control pins
   say("Set up motor control pins");
   for(int i=0;i<6;i++){
     pinMode(MOTORPIN[i],OUTPUT);
   }
   stopmotors();
-  
+
   //Start RFID stuff
   say("Setup RFID");
   SPI.begin();
@@ -68,14 +68,14 @@ void setup(){
   pinMode(NRSTPD,OUTPUT);                     // Set digital pin 10 , Not Reset and Power-down
   digitalWrite(NRSTPD, HIGH);
   catRFID.AddicoreRFID_Init();
-  
+
   //initial delay
   say("Initial setup delay");
   delay(1000);
 }
 
 
-//THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE 
+//THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE
 void sentry(){
   //get initial distances
   say("Get initial distances");
@@ -153,7 +153,7 @@ bool runaway(){
 
 
 
-//MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS 
+//MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS
 //Call this function if you're just moving and not checking for a cat
 void movemotors(bool left, bool right, int spd, int waitTime){
   setmotors(left, right, spd);
@@ -167,7 +167,7 @@ void movemotors(bool left, bool right, int spd, int waitTime){
 bool checkForCat(int waitTime){
   for(int i = 0; i < waitTime; i = i+300){
     delay(300);
-    if(wastouched()){ 
+    if(wastouched()){
       return true;
     }
   }
@@ -214,10 +214,10 @@ void stopmotors(){
 
 
 
-//SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS 
+//SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS
 //returns distance from ultrsonic sensors
 int getdistance(int Trigger, int Echo){
-  digitalWrite(Trigger, LOW);       
+  digitalWrite(Trigger, LOW);
   delayMicroseconds(2);
   digitalWrite(Trigger, HIGH);
   delayMicroseconds(10);
@@ -262,5 +262,5 @@ void loop(){
   else{
     delay(RETRIEVALDELAY);
   }
-  say("Finished loop"); 
+  say("Finished loop");
 }

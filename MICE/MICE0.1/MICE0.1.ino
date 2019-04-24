@@ -89,7 +89,7 @@ void sentry(){
   movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
-    initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
+    initial[i]=getdistance(TRIGPIN[i-3],ECHOPIN[i-3]);
   }
   for(int i=0;i<6;i++){
     checkSafe[i]=initial[i];
@@ -111,7 +111,7 @@ void sentry(){
     movemotors(REVERSE,FORWARD,SLOW,200);
     //second three (after turn)
     for(int i=3;i<6;i++){
-      initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
+      initial[i]=getdistance(TRIGPIN[i-3],ECHOPIN[i-3]);
     }
     for(int i=3;i<6;i++){
       if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){

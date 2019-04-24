@@ -20,19 +20,8 @@ const int NRSTPD = 9;
 AddicoreRFID catRFID;
 
 //Echo stuff
-const int trig = 2;
-const int echo = 3;
-#define EchoInputCount 2
-#define TriggerPin  2
-// echo pin will be interrupt 1 on pin 3
-#define DelayBetweenPings 50 // it works to about 5 milliseconds between pings
-volatile  unsigned long PingTime[EchoInputCount];
-volatile int Counter = EchoInputCount;
-volatile  unsigned long edgeTime;
-volatile  uint8_t PCintLast;
-int PinMask = B1000; // pin 3
-float Measurements[EchoInputCount];
-unsigned long TimeoutTimer;
+const int TRIGPIN[3] = {2,4,6};
+const int ECHOPIN[3] = {3,5,7};
 
 
 //Motor stuff
@@ -53,16 +42,17 @@ const int RETRIEVALDELAY = 10000;
 
 //SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP 
 void setup(){
-  /*
+  
   //setup serial monitor for debugging at 9600 baud rate
   Serial.begin(9600);
-  */
+  
   //setup ultrasonic sensors
   say("setup ultrasonic sensors");
-  pinMode(trig, OUTPUT);
-  pinMode(echo, INPUT); 
+  for(int i=0;i<3;i++){
+    pinMode(TRIGPIN[i], OUTPUT);
+    pinMode(ECHOPIN[i], INPUT);  
+  }
   
-  stopmotors();
   //set up all the motor control pins
   say("Set up motor control pins");
   for(int i=0;i<6;i++){
@@ -93,15 +83,13 @@ void sentry(){
   int checkSafe[6];
   //first three
   for(int i=0;i<3;i++){
-    getdistance();
-    initial[i]=Measurements[i];
+    initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
   }
   say("Done with first three");
   movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
-    getdistance();
-    initial[i]=Measurements[i];
+    initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
   }
   for(int i=0;i<6;i++){
     checkSafe[i]=initial[i];
@@ -112,8 +100,7 @@ void sentry(){
   while(safe){
     say("In sentry loop");
     for(int i=0;i<3;i++){
-      getdistance(); //debug getdistance?
-      checkSafe[i]=Measurements[i];
+      initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
     }
     for(int i=0;i<3;i++){
       if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
@@ -124,8 +111,7 @@ void sentry(){
     movemotors(REVERSE,FORWARD,SLOW,200);
     //second three (after turn)
     for(int i=3;i<6;i++){
-      getdistance(); //debug getdistance?
-      checkSafe[i]=Measurements[i];
+      initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
     }
     for(int i=3;i<6;i++){
       if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
@@ -230,16 +216,15 @@ void stopmotors(){
 
 //SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS SENSORS 
 //returns distance from ultrsonic sensors
-void getdistance(){
-  say("Called getdistance()");
-  PingIt(); // Manage ping data
-  //PingIt calls debug() which should print out data to serial monitor
-  
-  if ( ((unsigned long)(millis() - TimeoutTimer) >= 1000)) {
-    PingTrigger(TriggerPin); // Send another ping
-    Counter = 0;
-    TimeoutTimer = millis();
-  }
+int getdistance(int Trigger, int Echo){
+  digitalWrite(Trigger, LOW);       
+  delayMicroseconds(2);
+  digitalWrite(Trigger, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(Trigger, LOW);
+  cm = pulseIn(Echo, HIGH) / 58.0; //The echo time is converted into cm
+  cm = (int(cm * 100.0)) / 100.0;
+  return cm;
 }
 
 //checks if RFID tripped
@@ -257,79 +242,6 @@ bool wastouched(){
     say("No cat detected");
     catRFID.AddicoreRFID_Halt();
     return false;
-  }
-}
-
-
-//SONAR CODE
-void PintTimer( )
-{
-  uint8_t pin;
-  static unsigned long cTime;
-  cTime = micros();         // micros() return a uint32_t
-  pin = PIND >> 3 & 1;      // Quickly get the state of  pin 3
-  if (pin)edgeTime = cTime; //Pulse went HIGH store the start time
-  else { // Pulse Went low calculate the duratoin
-    PingTime[Counter % EchoInputCount] = cTime - edgeTime; // Calculate the change in time  
-    Counter++;//NOTE: the "% EchoInputCount" prevents the count from overflowing the array look up % remainder calculation
-  }
-}
-void debug()
-{
-  char S[20];
-  static unsigned long PingTimer;
-  if ((unsigned long)(millis() - PingTimer) >= 1) {
-    PingTimer = millis();
-    for (int c = 0; c < EchoInputCount; c++) {
-      Serial.print(dtostrf(Measurements[c], 6, 1, S));
-    }
-    Serial.println();
-  }
-}
-
-float microsecondsToInches(long microseconds)
-{
-  return (float) microseconds / 74 / 2;
-}
-
-float microsecondsToCentimeters(long microseconds)
-{
-  return (float)microseconds / 29 / 2;
-}
-
-void PingTrigger(int Pin)
-{
-
-  digitalWrite(Pin, LOW);
-  delayMicroseconds(1);
-  digitalWrite(Pin, HIGH); // Trigger another pulse
-  delayMicroseconds(10);
-  digitalWrite(Pin, LOW);
-}
-
-void PingIt()
-{
-  unsigned long PT[EchoInputCount];
-  static unsigned long PingTimer;
-  if (Counter >= EchoInputCount) {
-    if ( ((unsigned long)(millis() - PingTimer) >= DelayBetweenPings)) {
-      PingTimer = millis();
-      cli ();         // clear interrupts flag
-      for (int c = 0; c < EchoInputCount; c++) {
-        PT[c] = PingTime[c];
-      }
-      sei ();         // set interrupts flag
-      for (int c = 0; c < EchoInputCount; c++) {
-        if (PT[c] < 23200) Measurements[c] = (float) (microsecondsToCentimeters(PT[c]));
-      }
-      //      Measurements = (float) (microsecondsToInches(PT));
-      debug();
-      delay(10);
-      PingTrigger(TriggerPin); // Send another ping
-      Counter = 0;
-      TimeoutTimer = millis();
-
-    }
   }
 }
 

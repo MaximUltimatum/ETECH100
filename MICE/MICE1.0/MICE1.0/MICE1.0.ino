@@ -34,7 +34,7 @@ const int RETRIEVALDELAY = 10000;
 void setup(){
 
   //setup serial monitor for debugging at 9600 baud rate
-  //Serial.begin(9600);
+  Serial.begin(9600);
 
   //setup ultrasonic sensors
   say("setup ultrasonic sensors");
@@ -179,11 +179,13 @@ void movemotors(bool left, bool right, int spd, int waitTime){
   for (int i = 0; i <= waitTime; i = i + 100){
     delay(100);
     if(getdistance(TRIGPIN[0],ECHOPIN[0]) <= 10){
+      say("Wall evading");
       stopmotors();
       delay(50);
       setmotors(REVERSE,FORWARD, SLOW);
       while(getdistance(TRIGPIN[0],ECHOPIN[0]) <= 10){
-        delay(100);
+        say("still turning to avoid wall");
+        delay(150);
       }
       setmotors(left,right,spd);
     }
@@ -253,7 +255,7 @@ int getdistance(int Trigger, int Echo){
   digitalWrite(Trigger, LOW);
   cm = pulseIn(Echo, HIGH) / 58.0; //The echo time is converted into cm
   cm = (int(cm * 100.0)) / 100.0;
-  if(cm <= 0){return 150;}
+  if(cm <= 0||cm>150){return 150;}
   else{return cm;}
 }
 
@@ -269,9 +271,11 @@ void loop(){
   sentry();
   say("Exited sentry mode");
   if(flee()){ //returns true if the cat catches it
+    say("Eat delay");
     delay(EATDELAY);
   }
   else{
+    say("Retrieval delay");
     delay(RETRIEVALDELAY);
   }
   say("Finished loop");

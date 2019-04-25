@@ -17,10 +17,10 @@ int checkSafe[6];
 //Motor stuff
 const int MOTORPIN[6] = {6,5,8,7,1,4};
 // enA,enB   in1,in2,   ,in3,in4
-const bool FORWARD = true;
-const bool REVERSE = false;
-const int FAST = 200;
-const int SLOW = 100;
+const bool FORWARD = false;
+const bool REVERSE = true;
+const int FAST = 150;
+const int SLOW = 70;
 
 //Various variables
 const int MOVEPADDING = 30;
@@ -34,7 +34,7 @@ const int RETRIEVALDELAY = 10000;
 void setup(){
 
   //setup serial monitor for debugging at 9600 baud rate
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
   //setup ultrasonic sensors
   say("setup ultrasonic sensors");
@@ -72,7 +72,7 @@ void sentry(){
   }
   say("Done with first three");
   printDistance();
-  movemotors(FORWARD,REVERSE,SLOW,200);
+  //movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
     initial[i]=getdistance(TRIGPIN[i-3],ECHOPIN[i-3]);
@@ -82,12 +82,12 @@ void sentry(){
   for(int i=0;i<6;i++){
     checkSafe[i]=initial[i];
   }
-
   
   //sentry loop
   say("Entering sentry loop");
   bool safe = true;
   while(safe){
+    //movemotors(REVERSE,FORWARD,SLOW,200);
     say("In sentry loop, values are:");
     printDistance();
     for(int i=0;i<3;i++){
@@ -101,7 +101,7 @@ void sentry(){
         return;
       }
     }
-    movemotors(REVERSE,FORWARD,SLOW,200);
+    //movemotors(FORWARD,REVERSE,SLOW,200);
     //second three (after turn)
     for(int i=3;i<6;i++){
       checkSafe[i]=getdistance(TRIGPIN[i-3],ECHOPIN[i-3]);
@@ -149,16 +149,16 @@ bool runaway(){
   //TODO code to interface with RFID chip
   bool RFIDhit = false;
   int timeout = 0;
-  int straitTime = 5000;
-  int turnTime = 1000;
+  int straitTime = 3000;
+  int turnTime = 300;
   //drives in a square and checks for the cat
   while(!RFIDhit && (timeout<20000)){
-    setmotors(FORWARD,FORWARD,FAST);
-    RFIDhit = checkForCat(straitTime);
+    movemotors(FORWARD,FORWARD,SLOW,straitTime);
+    //RFIDhit = checkForCat(straitTime);
     timeout = timeout + straitTime;
     if(RFIDhit)
       return true;
-    setmotors(REVERSE,FORWARD,SLOW);
+    movemotors(FORWARD,REVERSE,SLOW,turnTime);
     //RFIDhit = checkForCat(turnTime);
     timeout = timeout + turnTime;
     if(RFIDhit)
@@ -173,8 +173,8 @@ bool runaway(){
 //Call this function if you're just moving and not checking for a cat
 void movemotors(bool left, bool right, int spd, int waitTime){
   setmotors(left, right, spd);
-  for (int i = 0; i < waitTime; i = i + 200){
-    delay(200);
+  for (int i = 0; i <= waitTime; i = i + 100){
+    delay(100);
   }
   stopmotors();
 }
@@ -193,16 +193,16 @@ bool checkForCat(int waitTime){
 //this function sets motor values
 void setmotors(bool left, bool right,int spd){ //spd is 0-255)
   //pass these into the motor
-  say("setting motors, configure this block for specifics");
+  //say("setting motors, configure this block for specifics");
   if(left){
     //say("Left called forward");
-    digitalWrite(MOTORPIN[2],HIGH);
-    digitalWrite(MOTORPIN[3],LOW);
+    digitalWrite(MOTORPIN[2],LOW);
+    digitalWrite(MOTORPIN[3],HIGH);
   }
   else{
     //say("Left called back");
-    digitalWrite(MOTORPIN[2],LOW);
-    digitalWrite(MOTORPIN[3],HIGH);
+    digitalWrite(MOTORPIN[2],HIGH);
+    digitalWrite(MOTORPIN[3],LOW);
   }
 
   if(right){

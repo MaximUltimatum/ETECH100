@@ -23,6 +23,7 @@ const int FAST = 150;
 const int SLOW = 70;
 
 //Various variables
+const int WALLPADDING = 30;
 const int MOVEPADDING = 10;
 float cm;
 bool exitProcess;
@@ -149,14 +150,14 @@ bool runaway(){
   //TODO code to interface with RFID chip
   bool RFIDhit = false;
   int timeout = 0;
-  int straitTime = 3000;
+  int straightTime = 1500;
   int turnTime = 300;
   int delaytime = 200;
   //drives in a square and checks for the cat
   while(!RFIDhit && (timeout<20000)){
-    movemotors(FORWARD,FORWARD,FAST,straitTime);
-    //RFIDhit = checkForCat(straitTime);
-    timeout = timeout + straitTime;
+    movemotors(FORWARD,FORWARD,FAST,straightTime);
+    //RFIDhit = checkForCat(straightTime);
+    timeout = timeout + straightTime;
     if(RFIDhit)
       return true;
     delay(delaytime);
@@ -178,12 +179,12 @@ void movemotors(bool left, bool right, int spd, int waitTime){
   setmotors(left, right, spd);
   for (int i = 0; i <= waitTime; i = i + 100){
     delay(100);
-    if(getdistance(TRIGPIN[0],ECHOPIN[0]) <= 10){
+    if(getdistance(TRIGPIN[0],ECHOPIN[0]) <= WALLPADDING){
       say("Wall evading");
       stopmotors();
       delay(50);
       setmotors(REVERSE,FORWARD, SLOW);
-      while(getdistance(TRIGPIN[0],ECHOPIN[0]) <= 10){
+      while(getdistance(TRIGPIN[0],ECHOPIN[0]) <= WALLPADDING){
         say("still turning to avoid wall");
         delay(150);
       }

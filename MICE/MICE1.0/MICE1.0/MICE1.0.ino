@@ -154,7 +154,7 @@ bool runaway(){
   int delaytime = 200;
   //drives in a square and checks for the cat
   while(!RFIDhit && (timeout<20000)){
-    movemotors(FORWARD,FORWARD,SLOW,straitTime);
+    movemotors(FORWARD,FORWARD,FAST,straitTime);
     //RFIDhit = checkForCat(straitTime);
     timeout = timeout + straitTime;
     if(RFIDhit)
@@ -178,6 +178,15 @@ void movemotors(bool left, bool right, int spd, int waitTime){
   setmotors(left, right, spd);
   for (int i = 0; i <= waitTime; i = i + 100){
     delay(100);
+    if(getdistance(TRIGPIN[0],ECHOPIN[0]) <= 10){
+      stopmotors();
+      delay(50);
+      setmotors(REVERSE,FORWARD, SLOW);
+      while(getdistance(TRIGPIN[0],ECHOPIN[0]) <= 10){
+        delay(100);
+      }
+      setmotors(left,right,spd);
+    }
   }
   stopmotors();
 }

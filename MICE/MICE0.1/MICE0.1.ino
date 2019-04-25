@@ -7,22 +7,12 @@
  * Email:mcdermottm3446@my.uwstout.edu
  * Function:Runs Motorized Interactive Cat Excersizer
  */
-//include RFID necessities
-#include "AddicoreRFID.h"
-#include <SPI.h>
-#define uchar unsigned char
-#define uint unsigned int
-uchar fifobytes;
-uchar fifoValue;
-const int chipSelectPin = 10;
-const int NRSTPD = 9;
-#define MAX_LEN 16
-AddicoreRFID catRFID;
 
 //Echo stuff
-const int TRIGPIN[3] = {2,4,6};
-const int ECHOPIN[3] = {3,5,7};
-
+const int TRIGPIN[3] = {2,9,11};
+const int ECHOPIN[3] = {3,10,12};
+int initial[6];
+int checkSafe[6];
 
 //Motor stuff
 const int MOTORPIN[6] = {6,5,8,7,1,4};
@@ -33,7 +23,7 @@ const int FAST = 200;
 const int SLOW = 100;
 
 //Various variables
-const int MOVEPADDING = 10;
+const int MOVEPADDING = 30;
 float cm;
 bool exitProcess;
 const int EATDELAY = 5000;
@@ -60,15 +50,6 @@ void setup(){
   }
   stopmotors();
 
-  //Start RFID stuff
-  say("Setup RFID");
-  SPI.begin();
-  pinMode(chipSelectPin,OUTPUT);
-  digitalWrite(chipSelectPin, LOW);         // Activate the RFID reader
-  pinMode(NRSTPD,OUTPUT);                     // Set digital pin 10 , Not Reset and Power-down
-  digitalWrite(NRSTPD, HIGH);
-  catRFID.AddicoreRFID_Init();
-
   //initial delay
   say("Initial setup delay");
   delay(1000);
@@ -77,33 +58,45 @@ void setup(){
 
 //THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE THNKING OPERATION CODE
 void sentry(){
+  //clear sentry and checksafe
+  for(int u = 0; u<6; u++){
+    initial[u] = 0;
+    checkSafe[u] = 0;
+  }
   //get initial distances
   say("Get initial distances");
-  int initial[6];
-  int checkSafe[6];
+  printDistance();
   //first three
   for(int i=0;i<3;i++){
     initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
   }
   say("Done with first three");
+  printDistance();
   movemotors(FORWARD,REVERSE,SLOW,200);
   //second three (after turn)
   for(int i=3;i<6;i++){
     initial[i]=getdistance(TRIGPIN[i-3],ECHOPIN[i-3]);
   }
+  say("Done with second three");
+  printDistance();
   for(int i=0;i<6;i++){
     checkSafe[i]=initial[i];
   }
+
+  
   //sentry loop
   say("Entering sentry loop");
   bool safe = true;
   while(safe){
-    say("In sentry loop");
+    say("In sentry loop, values are:");
+    printDistance();
     for(int i=0;i<3;i++){
-      initial[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
+      checkSafe[i]=getdistance(TRIGPIN[i],ECHOPIN[i]);
     }
+    printDistance();
     for(int i=0;i<3;i++){
-      if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
+      if(isStalked(i)){
+        say("Chase initiated");
         safe=false;
         return;
       }
@@ -111,15 +104,38 @@ void sentry(){
     movemotors(REVERSE,FORWARD,SLOW,200);
     //second three (after turn)
     for(int i=3;i<6;i++){
-      initial[i]=getdistance(TRIGPIN[i-3],ECHOPIN[i-3]);
+      checkSafe[i]=getdistance(TRIGPIN[i-3],ECHOPIN[i-3]);
     }
+    printDistance();
     for(int i=3;i<6;i++){
-      if(checkSafe[i]>((initial[i]+MOVEPADDING)||checkSafe[i]<(initial[i]-MOVEPADDING))){
+      if(isStalked(i)){
+        say("Chase initiated");
         safe=false;
         return;
       }
     }
   }
+}
+bool isStalked(int i){
+  if((checkSafe[i]>(initial[i]+MOVEPADDING))||(checkSafe[i]<(initial[i]-MOVEPADDING))){
+    return true;
+  }
+  else{return false;}
+}
+
+void printDistance(){
+  Serial.print("Initial: ");
+  for(int x = 0; x<6;x++){
+      Serial.print(initial[x]);
+      Serial.print("   ");
+  }
+  say("");
+  Serial.print("CheckSa: ");
+  for(int x = 0; x<6;x++){
+      Serial.print(checkSafe[x]);
+      Serial.print("   ");
+  }
+  say("");
 }
 
 bool flee(){
@@ -143,7 +159,7 @@ bool runaway(){
     if(RFIDhit)
       return true;
     setmotors(REVERSE,FORWARD,SLOW);
-    RFIDhit = checkForCat(turnTime);
+    //RFIDhit = checkForCat(turnTime);
     timeout = timeout + turnTime;
     if(RFIDhit)
       return true;
@@ -167,9 +183,9 @@ void movemotors(bool left, bool right, int spd, int waitTime){
 bool checkForCat(int waitTime){
   for(int i = 0; i < waitTime; i = i+300){
     delay(300);
-    if(wastouched()){
-      return true;
-    }
+    //if(wastouched()){
+    //  return true;
+    //}
   }
   return false;
 }
@@ -177,24 +193,25 @@ bool checkForCat(int waitTime){
 //this function sets motor values
 void setmotors(bool left, bool right,int spd){ //spd is 0-255)
   //pass these into the motor
+  say("setting motors, configure this block for specifics");
   if(left){
-    say("Left called forward");
+    //say("Left called forward");
     digitalWrite(MOTORPIN[2],HIGH);
     digitalWrite(MOTORPIN[3],LOW);
   }
   else{
-    say("Left called back");
+    //say("Left called back");
     digitalWrite(MOTORPIN[2],LOW);
     digitalWrite(MOTORPIN[3],HIGH);
   }
 
   if(right){
-    say("Right called forward");
+    //say("Right called forward");
     digitalWrite(MOTORPIN[4],HIGH);
     digitalWrite(MOTORPIN[5],LOW);
   }
   else{
-    say("Right called Back");
+    //say("Right called Back");
     digitalWrite(MOTORPIN[4],LOW);
     digitalWrite(MOTORPIN[5],HIGH);
   }
@@ -225,24 +242,6 @@ int getdistance(int Trigger, int Echo){
   cm = pulseIn(Echo, HIGH) / 58.0; //The echo time is converted into cm
   cm = (int(cm * 100.0)) / 100.0;
   return cm;
-}
-
-//checks if RFID tripped
-bool wastouched(){
-  uchar status;
-  uchar str[MAX_LEN];
-  str[1] = 0x4400;
-
-  status = catRFID.AddicoreRFID_Request(PICC_REQIDL, str);
-  if(status == MI_OK){
-    say("Cat got to it");
-    return true;
-  }
-  else{
-    say("No cat detected");
-    catRFID.AddicoreRFID_Halt();
-    return false;
-  }
 }
 
 

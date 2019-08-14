@@ -9,18 +9,20 @@
  */
 
 //Echo stuff
-const int TRIGPIN[3] = {2,9,11};
-const int ECHOPIN[3] = {3,10,12};
+const int TRIGPIN[3] = {2,7,12};
+const int ECHOPIN[3] = {3,4,13};
 int initial[6];
 int checkSafe[6];
 
 //Motor stuff
-const int MOTORPIN[6] = {6,5,8,7,1,4};
+const int MOTORPIN[6] = {6,5,11,10,9,8};
 // enA,enB   in1,in2,   ,in3,in4
-const bool FORWARD = true;
-const bool REVERSE = false;
-const int FAST = 150;
-const int SLOW = 70;
+const bool FORWARD1 = false;
+const bool REVERSE1 = true;
+const bool FORWARD2 = true;
+const bool REVERSE2 = false;
+const int FAST = 140;
+const int SLOW = 90;
 
 //Various variables
 const int WALLPADDING = 30;
@@ -28,7 +30,8 @@ const int MOVEPADDING = 10;
 float cm;
 bool exitProcess;
 const int EATDELAY = 5000;
-const int RETRIEVALDELAY = 10000;
+const int RETRIEVALDELAY = 5000;
+const int CHASETIME = 10000;
 
 
 //SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP
@@ -149,20 +152,30 @@ bool flee(){
 bool runaway(){
   //TODO code to interface with RFID chip
   bool RFIDhit = false;
+  bool turnDirection = false;
   int timeout = 0;
-  int straightTime = 1500;
+  int straightTime = 1000;
   int turnTime = 300;
   int delaytime = 200;
   //drives in a square and checks for the cat
-  while(!RFIDhit && (timeout<20000)){
-    movemotors(FORWARD,FORWARD,FAST,straightTime);
+  while(!RFIDhit && (timeout<CHASETIME)){
+    say("Straight onward!");
+    movemotors(FORWARD1,FORWARD2,FAST,straightTime);
     //RFIDhit = checkForCat(straightTime);
     timeout = timeout + straightTime;
     if(RFIDhit)
       return true;
     delay(delaytime);
     timeout = timeout + delaytime;
-    movemotors(FORWARD,REVERSE,SLOW,turnTime);
+    say("Turning!");
+    if(turnDirection){
+      movemotors(FORWARD1,REVERSE2,SLOW,turnTime);
+      turnDirection = false;
+    }
+    else{
+      movemotors(REVERSE1,FORWARD2,SLOW,turnTime);
+      turnDirection = true;
+    }
     //RFIDhit = checkForCat(turnTime);
     timeout = timeout + turnTime;
     if(RFIDhit)
@@ -173,7 +186,7 @@ bool runaway(){
 
 
 
-//MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS
+//MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS MOTORS
 //Call this function if you're just moving and not checking for a cat
 void movemotors(bool left, bool right, int spd, int waitTime){
   setmotors(left, right, spd);
@@ -182,11 +195,13 @@ void movemotors(bool left, bool right, int spd, int waitTime){
     if(getdistance(TRIGPIN[0],ECHOPIN[0]) <= WALLPADDING){
       say("Wall evading");
       stopmotors();
-      delay(50);
-      setmotors(REVERSE,FORWARD, SLOW);
+      delay(100);
+      i = i + 100;
+      setmotors(REVERSE1,FORWARD2, SLOW);
       while(getdistance(TRIGPIN[0],ECHOPIN[0]) <= WALLPADDING){
-        say("still turning to avoid wall");
-        delay(150);
+        say("still turning to avoid wall. Distance: " + getdistance(TRIGPIN[0],ECHOPIN[0]));
+        delay(200);
+        i = i + 200;
       }
       setmotors(left,right,spd);
     }

@@ -21,6 +21,7 @@ const bool FORWARD1 = false;
 const bool REVERSE1 = true;
 const bool FORWARD2 = true;
 const bool REVERSE2 = false;
+bool turnDirection = false;
 const int FAST = 140;
 const int SLOW = 90;
 
@@ -152,7 +153,6 @@ bool flee(){
 bool runaway(){
   //TODO code to interface with RFID chip
   bool RFIDhit = false;
-  bool turnDirection = false;
   int timeout = 0;
   int straightTime = 1000;
   int turnTime = 300;
@@ -197,7 +197,17 @@ void movemotors(bool left, bool right, int spd, int waitTime){
       stopmotors();
       delay(100);
       i = i + 100;
-      setmotors(REVERSE1,FORWARD2, SLOW);
+      setmotors(REVERSE1,REVERSE2, SLOW);
+      delay(100);
+      i = i + 100;
+      if(turnDirection){
+        setmotors(REVERSE1,FORWARD2, SLOW);
+        turnDirection = false;
+      }
+      else{
+        setmotors(FORWARD1,REVERSE2, SLOW);
+        turnDirection = true;
+      }
       while(getdistance(TRIGPIN[0],ECHOPIN[0]) <= WALLPADDING){
         say("still turning to avoid wall. Distance: " + getdistance(TRIGPIN[0],ECHOPIN[0]));
         delay(200);
